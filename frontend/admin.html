@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FairShift Guardian — Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; }
+    .card { transition: box-shadow 0.2s; }
+    .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .grade-A { background: #dcfce7; color: #15803d; }
+    .grade-B { background: #dbeafe; color: #1d4ed8; }
+    .grade-C { background: #fef9c3; color: #a16207; }
+    .grade-D { background: #fed7aa; color: #c2410c; }
+    .grade-F { background: #fee2e2; color: #b91c1c; }
+    .pulse { animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <!-- ─── SKIP LINK (WCAG 2.4.1) ───────────────────────────────── -->
+  <a href="#main-content"
+     class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-gray-900 text-white px-4 py-2 rounded z-50">
+    Skip to main content
+  </a>
+
+  <!-- ─── HEADER ─────────────────────────────────────────────────── -->
+  <header class="bg-gray-900 text-white px-6 py-4 flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-bold">🛡️ FairShift Guardian</h1>
+      <p class="text-gray-400 text-sm">Admin Dashboard</p>
+    </div>
+    <button onclick="loadDashboard()"
+      aria-label="Refresh dashboard data"
+      class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-4 py-2 rounded-lg">
+      🔄 Refresh
+    </button>
+    <button onclick="logout()"
+      aria-label="Logout from admin dashboard"
+      class="bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-4 py-2 rounded-lg">
+      ↩ Logout
+    </button>
+  </header>
+
+  <main id="main-content" role="main" class="max-w-4xl mx-auto px-4 py-6 space-y-6">
+
+    <!-- ─── KPI CARDS ──────────────────────────────────────────── -->
+    <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="card bg-white rounded-2xl shadow p-4 text-center">
+        <p class="text-3xl font-black text-blue-600" id="kpi-checkins">—</p>
+        <p class="text-xs text-gray-500 mt-1">Total Check-Ins</p>
+      </div>
+      <div class="card bg-white rounded-2xl shadow p-4 text-center">
+        <p class="text-3xl font-black text-red-500" id="kpi-nearmisses">—</p>
+        <p class="text-xs text-gray-500 mt-1">Open Near-Misses</p>
+      </div>
+      <div class="card bg-white rounded-2xl shadow p-4 text-center">
+        <p class="text-3xl font-black text-green-600" id="kpi-moods">—</p>
+        <p class="text-xs text-gray-500 mt-1">Mood Responses</p>
+      </div>
+      <div class="card bg-white rounded-2xl shadow p-4 text-center">
+        <p class="text-3xl font-black text-indigo-600" id="kpi-wages">—</p>
+        <p class="text-xs text-gray-500 mt-1">Wage Records Sealed</p>
+      </div>
+    </section>
+
+    <!-- ─── FAIRNESS SCORES ──────────────────────────────────── -->
+    <section class="bg-white rounded-2xl shadow p-5 card">
+      <h2 class="text-lg font-bold text-gray-800 mb-4">📊 Fairness Score by Industry</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="fairnessCards">
+        <div class="text-gray-400 text-sm">Loading...</div>
+      </div>
+    </section>
+
+    <!-- ─── WORKFORCE HEALTH MAP ─────────────────────────────── -->
+    <section class="bg-white rounded-2xl shadow p-5 card">
+      <h2 class="text-lg font-bold text-gray-800 mb-4">🗺️ Workforce Health Map</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="healthMap">
+        <div class="text-gray-400 text-sm">Loading...</div>
+      </div>
+    </section>
+
+    <!-- ─── RECENT NEAR-MISSES ───────────────────────────────── -->
+    <section class="bg-white rounded-2xl shadow p-5 card">
+      <h2 class="text-lg font-bold text-gray-800 mb-4">⚠️ Recent Near-Miss Reports</h2>
+      <div id="nearMissList" class="space-y-2">
+        <p class="text-gray-400 text-sm">No reports yet.</p>
+      </div>
+    </section>
+
+    <!-- ─── AI CHATBOT ───────────────────────────────────────── -->
+    <section class="bg-white rounded-2xl shadow p-5 card">
+      <h2 class="text-lg font-bold text-gray-800 mb-1">🤖 AI Workforce Insight</h2>
+      <p class="text-xs text-gray-500 mb-3">Ask Gemini AI about your workforce. Rate limited: 5 questions/minute.</p>
+      <div id="chatHistory" class="bg-gray-50 rounded-xl p-3 h-48 overflow-y-auto mb-3 space-y-2 text-sm">
+        <p class="text-gray-400">Ask a question below...</p>
+      </div>
+      <div class="flex gap-2">
+        <input id="aiQuestion" type="text" maxlength="200"
+          placeholder="e.g. Who might quit this month?"
+          class="flex-1 border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          onkeydown="if(event.key==='Enter') askAI()" />
+        <button onclick="askAI()"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2 rounded-xl text-sm">
+          Ask
+        </button>
+      </div>
+      <div class="flex gap-2 mt-2 flex-wrap">
+        <button onclick="quickAsk('Who might quit this month?')" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full">Who might quit?</button>
+        <button onclick="quickAsk('Show critical near-misses')" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full">Critical hazards</button>
+        <button onclick="quickAsk('What is the overall workforce mood trend?')" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full">Mood trend</button>
+      </div>
+    </section>
+
+    <!-- ─── WAGE VERIFICATION ────────────────────────────────── -->
+    <section class="bg-white rounded-2xl shadow p-5 card">
+      <h2 class="text-lg font-bold text-gray-800 mb-3">🔐 Verify Worker Wages</h2>
+      <div class="flex gap-2 mb-3">
+        <input id="verifyWorkerID" type="text" placeholder="Worker ID (e.g. W001)"
+          class="flex-1 border border-gray-300 rounded-xl px-4 py-2 text-sm uppercase font-mono"
+          oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" />
+        <input id="claimedTotal" type="number" placeholder="Payslip total ₹"
+          class="w-36 border border-gray-300 rounded-xl px-3 py-2 text-sm" />
+        <button onclick="verifyWages()"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-sm">
+          Verify
+        </button>
+      </div>
+      <div id="verifyResult" class="text-sm text-gray-500">Enter a worker ID and their claimed payslip total.</div>
+    </section>
+
+  </main>
+
+  <!-- ─── SCRIPTS ────────────────────────────────────────────────── -->
+  <script>
+    const ICONS = { slipped:'🦶', falling_object:'🪨', spark:'🔥', chemical_smell:'💨', electrical:'⚡', blocked_exit:'🚧' };
+
+    async function loadDashboard() {
+      try {
+        const res = await fetch('/api/dashboard', { headers: authHeaders() });
+        const d = await res.json();
+
+        // KPIs
+        document.getElementById('kpi-checkins').textContent = d.total_checkins;
+        document.getElementById('kpi-nearmisses').textContent = d.open_near_misses;
+        document.getElementById('kpi-moods').textContent = d.total_mood_responses;
+        document.getElementById('kpi-wages').textContent = d.total_wage_records;
+
+        // Fairness Scores
+        const fc = document.getElementById('fairnessCards');
+        fc.innerHTML = '';
+        for (const [ind, fs] of Object.entries(d.fairness_scores)) {
+          const g = fs.grade;
+          fc.innerHTML += `
+            <div class="rounded-xl p-4 grade-${g}">
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-bold capitalize">${ind === 'construction' ? '🏗️ Construction' : '🎓 College'}</span>
+                <span class="text-2xl font-black">${g}</span>
+              </div>
+              <div class="text-3xl font-black">${fs.score}/100</div>
+              <div class="text-xs mt-2 opacity-75">
+                Pay: ${fs.breakdown.pay_accuracy_pct}% &nbsp;|&nbsp;
+                Mood: ${fs.breakdown.avg_mood_score}% &nbsp;|&nbsp;
+                OT Rate: ${fs.breakdown.overtime_rate_pct}%
+              </div>
+            </div>`;
+        }
+
+        // Health Map (by industry)
+        const hm = document.getElementById('healthMap');
+        hm.innerHTML = '';
+        for (const [ind, count] of Object.entries(d.checkins_by_industry)) {
+          const color = count > 10 ? 'bg-red-100 border-red-300' : count > 5 ? 'bg-yellow-100 border-yellow-300' : 'bg-green-100 border-green-300';
+          hm.innerHTML += `
+            <div class="rounded-xl border-2 ${color} p-3 text-center">
+              <div class="text-2xl">${ind === 'construction' ? '🏗️' : '🎓'}</div>
+              <div class="font-bold capitalize text-sm mt-1">${ind}</div>
+              <div class="text-xl font-black">${count}</div>
+              <div class="text-xs text-gray-500">workers</div>
+            </div>`;
+        }
+        if (!d.checkins_by_industry || Object.keys(d.checkins_by_industry).length === 0) {
+          hm.innerHTML = '<p class="text-gray-400 text-sm col-span-4">No check-ins yet. Workers will appear here after checking in.</p>';
+        }
+
+        // Recent Near-Misses
+        const nml = document.getElementById('nearMissList');
+        if (d.recent_near_misses.length === 0) {
+          nml.innerHTML = '<p class="text-gray-400 text-sm">No near-misses reported yet.</p>';
+        } else {
+          nml.innerHTML = d.recent_near_misses.reverse().map(r => {
+            const sev = r.ai_classification.match(/SEVERITY:\s*(\w+)/)?.[1] || '?';
+            const sevColor = sev === 'CRITICAL' ? 'bg-red-100 border-red-400 text-red-700' : sev === 'MEDIUM' ? 'bg-orange-100 border-orange-400 text-orange-700' : 'bg-green-100 border-green-400 text-green-700';
+            return `<div class="flex items-center gap-3 p-3 rounded-xl border ${sevColor}">
+              <span class="text-2xl">${ICONS[r.icon_type] || '⚠️'}</span>
+              <div class="flex-1">
+                <div class="font-semibold text-sm">${r.icon_type.replace(/_/g,' ')} — Zone ${r.zone}</div>
+                <div class="text-xs opacity-75">${r.industry} &nbsp;·&nbsp; ${new Date(r.reported_at).toLocaleString()}</div>
+              </div>
+              <span class="font-black text-sm">${sev}</span>
+            </div>`;
+          }).join('');
+        }
+
+      } catch (e) {
+        console.error('Dashboard load error:', e);
+      }
+    }
+
+    function addChat(role, text) {
+      const ch = document.getElementById('chatHistory');
+      const isFirst = ch.querySelector('p.text-gray-400');
+      if (isFirst) ch.innerHTML = '';
+      const color = role === 'You' ? 'bg-blue-50 text-blue-800' : 'bg-gray-100 text-gray-800';
+      ch.innerHTML += `<div class="rounded-lg p-2 ${color}"><span class="font-bold text-xs">${role}:</span> ${text}</div>`;
+      ch.scrollTop = ch.scrollHeight;
+    }
+
+    async function askAI() {
+      const q = document.getElementById('aiQuestion').value.trim();
+      if (!q) return;
+      addChat('You', q);
+      document.getElementById('aiQuestion').value = '';
+      addChat('Gemini AI', '⏳ Thinking...');
+      try {
+        const res = await fetch('/api/ai-insight', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({ question: q, industry: 'all' }),
+        });
+        const data = await res.json();
+        // Replace the "Thinking..." message
+        const ch = document.getElementById('chatHistory');
+        const msgs = ch.querySelectorAll('div');
+        msgs[msgs.length - 1].innerHTML = `<span class="font-bold text-xs">Gemini AI:</span> ${data.insight}`;
+      } catch {
+        const ch = document.getElementById('chatHistory');
+        const msgs = ch.querySelectorAll('div');
+        msgs[msgs.length - 1].textContent = 'Gemini AI: Could not connect. Try again.';
+      }
+    }
+
+    function quickAsk(q) {
+      document.getElementById('aiQuestion').value = q;
+      askAI();
+    }
+
+    async function verifyWages() {
+      const id = document.getElementById('verifyWorkerID').value.trim();
+      const claimed = parseFloat(document.getElementById('claimedTotal').value);
+      if (!id || !claimed) { document.getElementById('verifyResult').textContent = 'Please fill both fields.'; return; }
+      try {
+        const res = await fetch('/api/verify-wages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ worker_id: id, claimed_total_inr: claimed }),
+        });
+        const d = await res.json();
+        const ok = d.status === 'VERIFIED_OK';
+        document.getElementById('verifyResult').innerHTML = `
+          <div class="p-3 rounded-xl ${ok ? 'bg-green-50 border border-green-300' : 'bg-red-50 border border-red-300'}">
+            <div class="font-bold ${ok ? 'text-green-700' : 'text-red-700'}">${ok ? '✅ VERIFIED — No tampering detected' : '🚨 MISMATCH DETECTED — Possible fraud'}</div>
+            <div class="text-xs mt-1 text-gray-600">
+              Shifts verified: ${d.total_shifts_verified} &nbsp;|&nbsp;
+              Verified total: ₹${d.verified_total_inr} &nbsp;|&nbsp;
+              Claimed: ₹${d.claimed_total_inr} &nbsp;|&nbsp;
+              Shortfall: ₹${d.shortfall_inr}
+            </div>
+            ${!ok ? `<a href="/api/wage-dispute-pdf/${id}" target="_blank" class="text-xs text-blue-600 underline mt-1 block">📄 Download Wage Dispute PDF</a>` : ''}
+          </div>`;
+      } catch (e) {
+        document.getElementById('verifyResult').textContent = `Error: ${e.message}`;
+      }
+    }
+
+    // ── Session + admin key from login page ─────────────────────────
+    const _adminKey   = localStorage.getItem('adminKey') || '';
+    const _adminEmail = localStorage.getItem('adminEmail') || 'Admin';
+
+    function logout() {
+      localStorage.removeItem('adminKey');
+      window.location.href = '/admin-login';
+    }
+
+    function authHeaders() {
+      const h = { 'Content-Type': 'application/json' };
+      if (_adminKey) h['X-Admin-Key'] = _adminKey;
+      return h;
+    }
+
+    // Auto-load on page open
+    loadDashboard();
+    // Auto-refresh every 30 seconds
+    setInterval(loadDashboard, 30000);
+  </script>
+</body>
+</html>

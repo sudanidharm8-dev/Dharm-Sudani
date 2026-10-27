@@ -1,0 +1,10 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.13.5
+google-genai>=1.16.0
+slowapi==0.1.10
+limits==5.8.0
+python-multipart==0.0.9
+reportlab==5.1.0
+httpx>=0.28.1
+anyio>=4.0.0

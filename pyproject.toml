@@ -1,0 +1,18 @@
+[project]
+name = "fairshift-guardian"
+version = "1.0.0"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi==0.115.0",
+    "uvicorn==0.30.6",
+    "python-multipart==0.0.9",
+    "pydantic==2.13.5",
+    "slowapi==0.1.10",
+    "limits==5.8.0",
+    "reportlab==5.1.0",
+    "google-genai>=1.16.0",
+    "httpx>=0.28.1",
+]
+
+[tool.vercel]
+entrypoint = "backend.main:app"

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FairShift — Worker Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family:'Segoe UI',sans-serif; }
+    .card { animation: slideUp 0.5s ease both; }
+    @keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+    .tab-on  { background:#2563eb;color:#fff;border-bottom:3px solid #1d4ed8; }
+    .tab-off { background:#f1f5f9;color:#64748b;border-bottom:3px solid transparent; }
+    input:focus { outline:none; }
+  </style>
+</head>
+<body class="min-h-screen flex" style="background:linear-gradient(135deg,#1e3a5f 0%,#0f766e 100%)">
+
+  <!-- LEFT PANEL — big icon, benefit list -->
+  <div class="hidden md:flex flex-col justify-center items-center w-1/2 px-12 text-white">
+    <div class="text-8xl mb-6">👷</div>
+    <h1 class="text-4xl font-black mb-3">Worker Portal</h1>
+    <p class="text-teal-200 text-lg mb-8 text-center">Your rights, your wages, your safety — all in one place.</p>
+    <ul class="space-y-4 text-base">
+      <li class="flex items-center gap-3"><span class="text-3xl">✅</span><span>Clock in &amp; track every shift</span></li>
+      <li class="flex items-center gap-3"><span class="text-3xl">🔐</span><span>Cryptographic wage proof</span></li>
+      <li class="flex items-center gap-3"><span class="text-3xl">⚠️</span><span>Report hazards in 8 seconds</span></li>
+      <li class="flex items-center gap-3"><span class="text-3xl">😊</span><span>Anonymous mood check-in</span></li>
+      <li class="flex items-center gap-3"><span class="text-3xl">📄</span><span>Download dispute PDF</span></li>
+    </ul>
+  </div>
+
+  <!-- RIGHT PANEL — login form -->
+  <div class="flex-1 flex items-center justify-center p-6">
+    <div class="card bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden">
+
+      <!-- Top bar -->
+      <div class="bg-blue-600 px-6 py-5 flex items-center gap-3">
+        <span class="text-4xl" aria-hidden="true">👷</span>
+        <div>
+          <h2 class="text-white font-black text-xl leading-tight">Worker Login</h2>
+          <p class="text-blue-200 text-xs">Construction Site &amp; College Campus</p>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex text-sm font-bold">
+        <button id="tl" onclick="tab('login')"   class="flex-1 py-3 tab-on  transition-all">🔑 LOGIN</button>
+        <button id="ts" onclick="tab('signup')"  class="flex-1 py-3 tab-off transition-all">✨ SIGN UP</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="fl" class="px-6 py-5">
+        <p class="text-gray-400 text-sm mb-4">No password needed — your Worker ID is your key.</p>
+
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Your Worker ID</label>
+        <input id="lid" type="text" maxlength="10" placeholder="e.g. W001"
+          class="w-full border-2 border-gray-200 focus:border-blue-500 rounded-xl px-4 py-3 text-2xl font-mono font-bold uppercase tracking-widest mb-4 transition-all"
+          oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"/>
+
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Sector</label>
+        <div class="grid grid-cols-2 gap-3 mb-5">
+          <button onclick="sec('construction','l')" id="lsc"
+            class="py-4 rounded-2xl border-2 border-blue-500 bg-blue-600 text-white font-bold text-sm">🏗️<br/>Construction</button>
+          <button onclick="sec('college','l')" id="lsco"
+            class="py-4 rounded-2xl border-2 border-gray-200 text-gray-500 font-bold text-sm">🎓<br/>College</button>
+        </div>
+
+        <button onclick="doLogin()"
+          class="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-black py-4 rounded-2xl text-lg transition-all">
+          ENTER PORTAL →
+        </button>
+        <p id="le" class="text-red-500 text-xs mt-2 text-center"></p>
+        <p class="text-center text-xs text-gray-400 mt-3">New worker? <button onclick="tab('signup')" class="text-blue-600 font-bold">Sign up →</button></p>
+      </div>
+
+      <!-- SIGN UP -->
+      <div id="fs" class="px-6 py-5 hidden">
+        <p class="text-gray-400 text-sm mb-4">First time? Create your Worker ID in 10 seconds.</p>
+
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Choose Worker ID</label>
+        <input id="sid" type="text" maxlength="10" placeholder="e.g. W099"
+          class="w-full border-2 border-gray-200 focus:border-green-500 rounded-xl px-4 py-3 text-2xl font-mono font-bold uppercase tracking-widest mb-1 transition-all"
+          oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"/>
+        <p class="text-xs text-gray-400 mb-4">3–10 uppercase letters/digits · No spaces</p>
+
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Sector</label>
+        <div class="grid grid-cols-2 gap-3 mb-5">
+          <button onclick="sec('construction','s')" id="ssc"
+            class="py-4 rounded-2xl border-2 border-green-500 bg-green-600 text-white font-bold text-sm">🏗️<br/>Construction</button>
+          <button onclick="sec('college','s')" id="ssco"
+            class="py-4 rounded-2xl border-2 border-gray-200 text-gray-500 font-bold text-sm">🎓<br/>College</button>
+        </div>
+
+        <button onclick="doSignup()"
+          class="w-full bg-green-600 hover:bg-green-700 active:scale-95 text-white font-black py-4 rounded-2xl text-lg transition-all">
+          CREATE &amp; ENTER →
+        </button>
+        <p id="se" class="text-red-500 text-xs mt-2 text-center"></p>
+        <p class="text-center text-xs text-gray-400 mt-3">Already have ID? <button onclick="tab('login')" class="text-blue-600 font-bold">Login →</button></p>
+      </div>
+
+      <!-- footer -->
+      <div class="bg-gray-50 px-6 py-3 text-center">
+        <p class="text-xs text-gray-400">🔒 Fully anonymous · No personal data stored</p>
+      </div>
+    </div>
+
+    <a href="/" class="absolute top-4 left-4 text-white text-sm opacity-70 hover:opacity-100">← Home</a>
+  </div>
+
+  <script>
+    let lSector='construction', sSector='construction';
+
+    function tab(t) {
+      document.getElementById('fl').classList.toggle('hidden', t!=='login');
+      document.getElementById('fs').classList.toggle('hidden', t!=='signup');
+      document.getElementById('tl').className='flex-1 py-3 transition-all '+(t==='login'?'tab-on':'tab-off');
+      document.getElementById('ts').className='flex-1 py-3 transition-all '+(t==='signup'?'tab-on':'tab-off');
+    }
+
+    function sec(s,f) {
+      if(f==='l'){
+        lSector=s;
+        document.getElementById('lsc').className ='py-4 rounded-2xl border-2 font-bold text-sm '+(s==='construction'?'border-blue-500 bg-blue-600 text-white':'border-gray-200 text-gray-500');
+        document.getElementById('lsco').className='py-4 rounded-2xl border-2 font-bold text-sm '+(s==='college'?'border-blue-500 bg-blue-600 text-white':'border-gray-200 text-gray-500');
+      } else {
+        sSector=s;
+        document.getElementById('ssc').className ='py-4 rounded-2xl border-2 font-bold text-sm '+(s==='construction'?'border-green-500 bg-green-600 text-white':'border-gray-200 text-gray-500');
+        document.getElementById('ssco').className='py-4 rounded-2xl border-2 font-bold text-sm '+(s==='college'?'border-green-500 bg-green-600 text-white':'border-gray-200 text-gray-500');
+      }
+    }
+
+    function doLogin() {
+      const id=document.getElementById('lid').value.trim();
+      if(id.length<2){document.getElementById('le').textContent='⚠️ Enter your Worker ID';return;}
+      localStorage.setItem('workerID',id);
+      localStorage.setItem('sector',lSector);
+      window.location.href='/worker';
+    }
+
+    function doSignup() {
+      const id=document.getElementById('sid').value.trim();
+      if(id.length<3){document.getElementById('se').textContent='⚠️ ID must be at least 3 characters';return;}
+      localStorage.setItem('workerID',id);
+      localStorage.setItem('sector',sSector);
+      fetch('/api/checkin',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({worker_id:id,industry:sSector,zone:'A',shift_type:'morning',daily_wage_inr:500})
+      }).finally(()=>window.location.href='/worker');
+    }
+
+    // Pre-fill saved ID
+    const sv=localStorage.getItem('workerID');
+    if(sv) document.getElementById('lid').value=sv;
+
+    document.addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('fs').classList.contains('hidden')?doLogin():doSignup(); });
+  </script>
+</body>
+</html>

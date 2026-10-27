@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FairShift — Admin Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body{font-family:'Segoe UI',sans-serif;}
+    .card{animation:slideUp 0.5s ease both;}
+    @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+    .tab-on {background:#d97706;color:#fff;border-bottom:3px solid #b45309;}
+    .tab-off{background:#1f2937;color:#9ca3af;border-bottom:3px solid transparent;}
+    .shake{animation:shake 0.4s ease;}
+    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+    input:focus{outline:none;}
+  </style>
+</head>
+<body class="min-h-screen flex" style="background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%)">
+
+  <!-- LEFT PANEL — dark stats panel -->
+  <div class="hidden md:flex flex-col justify-center w-1/2 px-12">
+    <div class="text-7xl mb-6">🛡️</div>
+    <h1 class="text-4xl font-black text-white mb-2">Admin Dashboard</h1>
+    <p class="text-indigo-300 text-lg mb-8">Monitor workforce fairness across your entire operation.</p>
+
+    <div class="space-y-4">
+      <div class="bg-white/10 rounded-2xl p-4 flex items-center gap-4 border border-white/10">
+        <span class="text-3xl">📊</span>
+        <div>
+          <p class="text-white font-bold">Live Fairness Score</p>
+          <p class="text-indigo-300 text-sm">Real-time composite metric across all sites</p>
+        </div>
+      </div>
+      <div class="bg-white/10 rounded-2xl p-4 flex items-center gap-4 border border-white/10">
+        <span class="text-3xl">🚨</span>
+        <div>
+          <p class="text-white font-bold">Open Hazard Alerts</p>
+          <p class="text-indigo-300 text-sm">Unresolved near-miss reports flagged instantly</p>
+        </div>
+      </div>
+      <div class="bg-white/10 rounded-2xl p-4 flex items-center gap-4 border border-white/10">
+        <span class="text-3xl">🤖</span>
+        <div>
+          <p class="text-white font-bold">Gemini AI Chatbot</p>
+          <p class="text-indigo-300 text-sm">Ask workforce questions in plain English</p>
+        </div>
+      </div>
+      <div class="bg-white/10 rounded-2xl p-4 flex items-center gap-4 border border-white/10">
+        <span class="text-3xl">🔍</span>
+        <div>
+          <p class="text-white font-bold">Wage Tamper Detection</p>
+          <p class="text-indigo-300 text-sm">SHA-256 cryptographic verification on every record</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL — login form -->
+  <div class="flex-1 flex items-center justify-center p-6">
+    <div class="card w-full max-w-sm">
+
+      <!-- Logo bar -->
+      <div class="bg-gradient-to-r from-yellow-600 to-orange-500 rounded-t-3xl px-6 py-5 flex items-center gap-3">
+        <span class="text-4xl" aria-hidden="true">🛡️</span>
+        <div>
+          <h2 class="text-gray-900 font-black text-xl">Admin Access</h2>
+          <p class="text-yellow-900 text-xs">Employer · HR Manager · Site Supervisor</p>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex text-sm font-bold">
+        <button id="tl" onclick="tab('login')"  class="flex-1 py-3 tab-on  transition-all">🔑 LOGIN</button>
+        <button id="tr" onclick="tab('register')" class="flex-1 py-3 tab-off transition-all">📋 REGISTER</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="fl" class="bg-gray-900 px-6 py-5 rounded-b-3xl">
+        <p class="text-gray-400 text-sm mb-4">Enter your credentials to access the workforce dashboard.</p>
+
+        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Admin Email</label>
+        <input id="email" type="email" placeholder="admin@company.com"
+          class="w-full bg-gray-800 border-2 border-gray-700 focus:border-yellow-500 text-white rounded-xl px-4 py-3 text-sm mb-3 transition-all"/>
+
+        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Admin Key</label>
+        <div class="relative mb-1">
+          <input id="key" type="password" placeholder="Paste your ADMIN_API_KEY"
+            class="w-full bg-gray-800 border-2 border-gray-700 focus:border-yellow-500 text-white rounded-xl px-4 py-3 text-sm transition-all pr-10"/>
+          <button onclick="togglePwd()" class="absolute right-3 top-3 text-gray-500 hover:text-white text-lg" aria-label="Show/hide key">👁</button>
+        </div>
+        <p class="text-xs text-gray-600 mb-5">Set <code class="text-yellow-400">ADMIN_API_KEY</code> in <code class="text-yellow-400">.env</code>. Leave blank in dev/demo mode.</p>
+
+        <button onclick="doLogin()" id="lbtn"
+          class="w-full bg-yellow-500 hover:bg-yellow-400 active:scale-95 text-gray-900 font-black py-4 rounded-2xl text-lg transition-all">
+          ACCESS DASHBOARD →
+        </button>
+        <p id="le" class="text-red-400 text-xs mt-2 text-center"></p>
+
+        <div class="mt-4 pt-4 border-t border-gray-800 text-center">
+          <p class="text-xs text-gray-500">New organisation? <button onclick="tab('register')" class="text-yellow-500 font-bold">Register →</button></p>
+        </div>
+      </div>
+
+      <!-- REGISTER -->
+      <div id="fr" class="bg-gray-900 px-6 py-5 rounded-b-3xl hidden">
+        <p class="text-gray-400 text-sm mb-4">Register your organisation to start monitoring workforce fairness.</p>
+
+        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Organisation Name</label>
+        <input id="org" type="text" placeholder="e.g. BuildCo Construction Ltd"
+          class="w-full bg-gray-800 border-2 border-gray-700 focus:border-yellow-500 text-white rounded-xl px-4 py-3 text-sm mb-3 transition-all"/>
+
+        <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Admin Email</label>
+        <input id="remail" type="email" placeholder="admin@company.com"
+          class="w-full bg-gray-800 border-2 border-gray-700 focus:border-yellow-500 text-white rounded-xl px-4 py-3 text-sm mb-3 transition-all"/>
+
+        <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Primary Sector</label>
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <button onclick="rSec('construction')" id="rsc"
+            class="py-3 rounded-xl border-2 border-yellow-500 bg-yellow-900/40 text-yellow-300 font-bold text-sm">🏗️ Construction</button>
+          <button onclick="rSec('college')" id="rsco"
+            class="py-3 rounded-xl border-2 border-gray-700 text-gray-500 font-bold text-sm">🎓 College</button>
+        </div>
+
+        <div class="bg-yellow-900/20 border border-yellow-600/30 rounded-xl p-3 mb-4">
+          <p class="text-yellow-400 text-xs font-bold">⚙️ After registering, set your key:</p>
+          <code class="text-green-400 text-xs">ADMIN_API_KEY=your_secret</code>
+        </div>
+
+        <button onclick="doRegister()"
+          class="w-full bg-yellow-500 hover:bg-yellow-400 active:scale-95 text-gray-900 font-black py-4 rounded-2xl text-lg transition-all">
+          REGISTER ORG →
+        </button>
+        <p id="re" class="text-red-400 text-xs mt-2 text-center"></p>
+        <p class="text-center text-xs text-gray-500 mt-3">Already registered? <button onclick="tab('login')" class="text-yellow-500 font-bold">Login →</button></p>
+      </div>
+    </div>
+
+    <a href="/" class="absolute top-4 left-4 text-gray-400 text-sm hover:text-white">← Home</a>
+  </div>
+
+  <script>
+    let regSector='construction';
+
+    function tab(t){
+      document.getElementById('fl').classList.toggle('hidden',t!=='login');
+      document.getElementById('fr').classList.toggle('hidden',t!=='register');
+      document.getElementById('tl').className='flex-1 py-3 transition-all '+(t==='login'?'tab-on':'tab-off');
+      document.getElementById('tr').className='flex-1 py-3 transition-all '+(t==='register'?'tab-on':'tab-off');
+    }
+
+    function togglePwd(){const e=document.getElementById('key');e.type=e.type==='password'?'text':'password';}
+
+    function rSec(s){
+      regSector=s;
+      document.getElementById('rsc').className ='py-3 rounded-xl border-2 font-bold text-sm '+(s==='construction'?'border-yellow-500 bg-yellow-900/40 text-yellow-300':'border-gray-700 text-gray-500');
+      document.getElementById('rsco').className='py-3 rounded-xl border-2 font-bold text-sm '+(s==='college'?'border-yellow-500 bg-yellow-900/40 text-yellow-300':'border-gray-700 text-gray-500');
+    }
+
+    async function doLogin(){
+      const key=document.getElementById('key').value.trim();
+      const email=document.getElementById('email').value.trim();
+      document.getElementById('le').textContent='';
+      const btn=document.getElementById('lbtn');
+      btn.textContent='Verifying…'; btn.disabled=true;
+      try{
+        const h={'Content-Type':'application/json'};
+        if(key) h['X-Admin-Key']=key;
+        const r=await fetch('/api/dashboard',{headers:h});
+        if(r.status===401){
+          document.getElementById('fl').classList.add('shake');
+          setTimeout(()=>document.getElementById('fl').classList.remove('shake'),500);
+          document.getElementById('le').textContent='❌ Wrong Admin Key — check your .env';
+          return;
+        }
+        if(key) localStorage.setItem('adminKey',key);
+        localStorage.setItem('adminEmail',email||'Admin');
+        window.location.href='/admin';
+      }catch{
+        document.getElementById('le').textContent='⚠️ Cannot connect to server.';
+      }finally{
+        btn.textContent='ACCESS DASHBOARD →'; btn.disabled=false;
+      }
+    }
+
+    function doRegister(){
+      const org=document.getElementById('org').value.trim();
+      const email=document.getElementById('remail').value.trim();
+      if(!org){document.getElementById('re').textContent='⚠️ Enter organisation name';return;}
+      if(!email){document.getElementById('re').textContent='⚠️ Enter admin email';return;}
+      localStorage.setItem('adminEmail',email);
+      localStorage.setItem('adminOrg',org);
+      window.location.href='/admin';
+    }
+
+    document.addEventListener('keydown',e=>{
+      if(e.key==='Enter'){
+        if(!document.getElementById('fl').classList.contains('hidden')) doLogin();
+        else doRegister();
+      }
+    });
+  </script>
+</body>
+</html>

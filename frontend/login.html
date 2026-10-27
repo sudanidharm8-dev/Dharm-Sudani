@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FairShift Guardian — Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body{font-family:'Segoe UI',sans-serif;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    .fade{animation:fadeIn 0.35s ease both;}
+    .shake{animation:shake 0.4s ease;}
+    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+    input:focus{outline:none;}
+    .tab-w-on  {background:#2563eb;color:#fff;border-bottom:3px solid #1d4ed8;}
+    .tab-w-off {background:#f1f5f9;color:#64748b;border-bottom:3px solid transparent;}
+    .tab-a-on  {background:#d97706;color:#fff;border-bottom:3px solid #b45309;}
+    .tab-a-off {background:#1e293b;color:#64748b;border-bottom:3px solid transparent;}
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center px-4 py-8 transition-all duration-500" id="bg">
+
+  <!-- LOGO -->
+  <div class="mb-6 text-center fade">
+    <div class="text-5xl mb-1" aria-hidden="true">🛡️</div>
+    <h1 class="text-2xl font-black text-white">FairShift Guardian</h1>
+    <p class="text-sm text-white/60">Powered by Gemini AI · UN SDG 8</p>
+  </div>
+
+  <!-- ROLE SWITCHER -->
+  <div class="flex bg-white/10 backdrop-blur rounded-2xl p-1 gap-1 mb-6 fade">
+    <button id="rbtn-worker" onclick="setRole('worker')"
+      class="px-6 py-2.5 rounded-xl font-black text-sm transition-all duration-300 bg-white text-blue-700 shadow">
+      👷 I'm a Worker
+    </button>
+    <button id="rbtn-admin" onclick="setRole('admin')"
+      class="px-6 py-2.5 rounded-xl font-black text-sm transition-all duration-300 text-white/70">
+      🛡️ I'm an Admin
+    </button>
+  </div>
+
+  <!-- CARD -->
+  <div id="card" class="w-full max-w-md rounded-3xl shadow-2xl overflow-hidden fade">
+
+    <!-- ══════════════ WORKER PANEL ══════════════ -->
+    <div id="worker-panel">
+      <div class="bg-blue-600 px-6 py-4 flex items-center gap-3">
+        <span class="text-4xl" aria-hidden="true">👷</span>
+        <div>
+          <p class="text-white font-black text-lg">Worker Portal</p>
+          <p class="text-blue-200 text-xs">Construction Site &amp; College Campus</p>
+        </div>
+      </div>
+
+      <!-- sub-tabs -->
+      <div class="flex text-sm font-bold">
+        <button id="wt-login"  onclick="wTab('login')"  class="flex-1 py-3 tab-w-on  transition-all">🔑 Login</button>
+        <button id="wt-signup" onclick="wTab('signup')" class="flex-1 py-3 tab-w-off transition-all">✨ Sign Up</button>
+      </div>
+
+      <!-- Worker Login -->
+      <div id="w-login" class="bg-white px-6 py-5">
+        <p class="text-gray-400 text-sm mb-4">No password needed — your Worker ID is your key.</p>
+
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Worker ID</label>
+        <input id="wl-id" type="text" maxlength="10" placeholder="e.g. W001"
+          class="w-full border-2 border-gray-200 focus:border-blue-500 rounded-xl px-4 py-3 text-2xl font-mono font-bold uppercase tracking-widest mb-4 transition-all"
+          oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"/>
+
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Sector</label>
+        <div class="grid grid-cols-2 gap-3 mb-5">
+          <button onclick="wSec('construction')" id="wls-c"
+            class="py-4 rounded-2xl border-2 border-blue-500 bg-blue-600 text-white font-bold text-sm transition-all">
+            🏗️<br/>Construction</button>
+          <button onclick="wSec('college')" id="wls-co"
+            class="py-4 rounded-2xl border-2 border-gray-200 text-gray-400 font-bold text-sm transition-all">
+            🎓<br/>College</button>
+        </div>
+
+        <button onclick="doWorkerLogin()"
+          class="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-black py-4 rounded-2xl text-lg transition-all">
+          ENTER PORTAL →
+        </button>
+        <p id="wl-err" class="text-red-500 text-xs mt-2 text-center h-4"></p>
+        <p class="text-center text-xs text-gray-400 mt-2">New worker? <button onclick="wTab('signup')" class="text-blue-600 font-bold">Sign up</button></p>
+      </div>
+
+      <!-- Worker Sign Up -->
+      <div id="w-signup" class="bg-white px-6 py-5 hidden">
+        <p class="text-gray-400 text-sm mb-4">Create your Worker ID in 10 seconds.</p>
+
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Choose Worker ID</label>
+        <input id="ws-id" type="text" maxlength="10" placeholder="e.g. W099"
+          class="w-full border-2 border-gray-200 focus:border-green-500 rounded-xl px-4 py-3 text-2xl font-mono font-bold uppercase tracking-widest mb-1 transition-all"
+          oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"/>
+        <p class="text-xs text-gray-400 mb-4">3–10 uppercase letters/digits · No spaces</p>
+
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Sector</label>
+        <div class="grid grid-cols-2 gap-3 mb-5">
+          <button onclick="wsSec('construction')" id="wss-c"
+            class="py-4 rounded-2xl border-2 border-green-500 bg-green-600 text-white font-bold text-sm transition-all">
+            🏗️<br/>Construction</button>
+          <button onclick="wsSec('college')" id="wss-co"
+            class="py-4 rounded-2xl border-2 border-gray-200 text-gray-400 font-bold text-sm transition-all">
+            🎓<br/>College</button>
+        </div>
+
+        <button onclick="doWorkerSignup()"
+          class="w-full bg-green-600 hover:bg-green-700 active:scale-95 text-white font-black py-4 rounded-2xl text-lg transition-all">
+          CREATE &amp; ENTER →
+        </button>
+        <p id="ws-err" class="text-red-500 text-xs mt-2 text-center h-4"></p>
+        <p class="text-center text-xs text-gray-400 mt-2">Already have ID? <button onclick="wTab('login')" class="text-blue-600 font-bold">Login</button></p>
+      </div>
+
+      <div class="bg-blue-50 px-6 py-2 text-center text-xs text-blue-400">🔒 Fully anonymous · No personal data stored</div>
+    </div>
+
+    <!-- ══════════════ ADMIN PANEL ══════════════ -->
+    <div id="admin-panel" class="hidden">
+      <div class="bg-gradient-to-r from-yellow-600 to-orange-500 px-6 py-4 flex items-center gap-3">
+        <span class="text-4xl" aria-hidden="true">🛡️</span>
+        <div>
+          <p class="text-gray-900 font-black text-lg">Admin Dashboard</p>
+          <p class="text-yellow-900 text-xs">Employer · HR Manager · Site Supervisor</p>
+        </div>
+      </div>
+
+      <!-- sub-tabs -->
+      <div class="flex text-sm font-bold">
+        <button id="at-login"    onclick="aTab('login')"    class="flex-1 py-3 tab-a-on  transition-all">🔑 Login</button>
+        <button id="at-register" onclick="aTab('register')" class="flex-1 py-3 tab-a-off transition-all">📋 Register</button>
+      </div>
+
+      <!-- Admin Login -->
+      <div id="a-login" class="bg-gray-900 px-6 py-5">
+        <p class="text-gray-400 text-sm mb-4">Enter credentials to access the workforce dashboard.</p>
+
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Admin Email</label>
+        <input id="al-email" type="email" placeholder="admin@company.com"
+          class="w-full bg-gray-800 border-2 border-gray-700 focus:border-yellow-500 text-white rounded-xl px-4 py-3 text-sm mb-3 transition-all"/>
+
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Admin Key</label>
+        <div class="relative mb-1">
+          <input id="al-key" type="password" placeholder="Your ADMIN_API_KEY"
+            class="w-full bg-gray-800 border-2 border-gray-700 focus:border-yellow-500 text-white rounded-xl px-4 py-3 text-sm transition-all pr-10"/>
+          <button onclick="togglePwd('al-key')" class="absolute right-3 top-3 text-gray-500 hover:text-white" aria-label="Toggle">👁</button>
+        </div>
+        <p class="text-xs text-gray-600 mb-4">Leave blank in dev/demo mode.</p>
+
+        <button onclick="doAdminLogin()" id="al-btn"
+          class="w-full bg-yellow-500 hover:bg-yellow-400 active:scale-95 text-gray-900 font-black py-4 rounded-2xl text-lg transition-all">
+          ACCESS DASHBOARD →
+        </button>
+        <p id="al-err" class="text-red-400 text-xs mt-2 text-center h-4"></p>
+        <p class="text-center text-xs text-gray-500 mt-2">New org? <button onclick="aTab('register')" class="text-yellow-500 font-bold">Register</button></p>
+      </div>
+
+      <!-- Admin Register -->
+      <div id="a-register" class="bg-gray-900 px-6 py-5 hidden">
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Organisation</label>
+        <input id="ar-org" type="text" placeholder="e.g. BuildCo Ltd"
+          class="w-full bg-gray-800 border-2 border-gray-700 focus:border-yellow-500 text-white rounded-xl px-4 py-3 text-sm mb-3 transition-all"/>
+
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Admin Email</label>
+        <input id="ar-email" type="email" placeholder="admin@company.com"
+          class="w-full bg-gray-800 border-2 border-gray-700 focus:border-yellow-500 text-white rounded-xl px-4 py-3 text-sm mb-3 transition-all"/>
+
+        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Sector</label>
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <button onclick="arSec('construction')" id="ar-c"
+            class="py-3 rounded-xl border-2 border-yellow-500 bg-yellow-900/40 text-yellow-300 font-bold text-sm">🏗️ Construction</button>
+          <button onclick="arSec('college')" id="ar-co"
+            class="py-3 rounded-xl border-2 border-gray-700 text-gray-500 font-bold text-sm">🎓 College</button>
+        </div>
+
+        <button onclick="doAdminRegister()"
+          class="w-full bg-yellow-500 hover:bg-yellow-400 active:scale-95 text-gray-900 font-black py-4 rounded-2xl text-lg transition-all">
+          REGISTER ORG →
+        </button>
+        <p id="ar-err" class="text-red-400 text-xs mt-2 text-center h-4"></p>
+        <p class="text-center text-xs text-gray-500 mt-2">Already registered? <button onclick="aTab('login')" class="text-yellow-500 font-bold">Login</button></p>
+      </div>
+
+      <div class="bg-gray-800 px-6 py-2 text-center text-xs text-gray-500">🔐 Secured with API key authentication</div>
+    </div>
+
+  </div><!-- /card -->
+
+  <script>
+    // ── State ────────────────────────────────────────────────────────
+    let role='worker', wLoginSec='construction', wSignupSec='construction', arSector='construction';
+
+    // ── Background themes ────────────────────────────────────────────
+    const THEMES = {
+      worker: 'min-h-screen flex flex-col items-center justify-center px-4 py-8 transition-all duration-500',
+      admin:  'min-h-screen flex flex-col items-center justify-center px-4 py-8 transition-all duration-500',
+    };
+
+    // ── Role switch ──────────────────────────────────────────────────
+    function setRole(r) {
+      role = r;
+      const isWorker = r === 'worker';
+
+      document.getElementById('worker-panel').classList.toggle('hidden', !isWorker);
+      document.getElementById('admin-panel').classList.toggle('hidden',  isWorker);
+
+      document.getElementById('rbtn-worker').className = 'px-6 py-2.5 rounded-xl font-black text-sm transition-all duration-300 '
+        + (isWorker ? 'bg-white text-blue-700 shadow' : 'text-white/70');
+      document.getElementById('rbtn-admin').className  = 'px-6 py-2.5 rounded-xl font-black text-sm transition-all duration-300 '
+        + (!isWorker ? 'bg-white text-yellow-700 shadow' : 'text-white/70');
+
+      document.getElementById('bg').style.background = isWorker
+        ? 'linear-gradient(135deg,#1e3a5f 0%,#0f766e 100%)'
+        : 'linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%)';
+
+      document.getElementById('card').classList.add('fade');
+      setTimeout(()=>document.getElementById('card').classList.remove('fade'),400);
+    }
+
+    // ── Worker sub-tabs ──────────────────────────────────────────────
+    function wTab(t) {
+      document.getElementById('w-login').classList.toggle('hidden',  t!=='login');
+      document.getElementById('w-signup').classList.toggle('hidden', t!=='signup');
+      document.getElementById('wt-login').className  = 'flex-1 py-3 transition-all '+(t==='login'?'tab-w-on':'tab-w-off');
+      document.getElementById('wt-signup').className = 'flex-1 py-3 transition-all '+(t==='signup'?'tab-w-on':'tab-w-off');
+    }
+
+    function wSec(s) {
+      wLoginSec = s;
+      document.getElementById('wls-c').className  = 'py-4 rounded-2xl border-2 font-bold text-sm transition-all '+(s==='construction'?'border-blue-500 bg-blue-600 text-white':'border-gray-200 text-gray-400');
+      document.getElementById('wls-co').className = 'py-4 rounded-2xl border-2 font-bold text-sm transition-all '+(s==='college'?'border-blue-500 bg-blue-600 text-white':'border-gray-200 text-gray-400');
+    }
+
+    function wsSec(s) {
+      wSignupSec = s;
+      document.getElementById('wss-c').className  = 'py-4 rounded-2xl border-2 font-bold text-sm transition-all '+(s==='construction'?'border-green-500 bg-green-600 text-white':'border-gray-200 text-gray-400');
+      document.getElementById('wss-co').className = 'py-4 rounded-2xl border-2 font-bold text-sm transition-all '+(s==='college'?'border-green-500 bg-green-600 text-white':'border-gray-200 text-gray-400');
+    }
+
+    function doWorkerLogin() {
+      const id = document.getElementById('wl-id').value.trim();
+      if (id.length < 2) { document.getElementById('wl-err').textContent='⚠️ Enter your Worker ID'; return; }
+      localStorage.setItem('workerID', id);
+      localStorage.setItem('sector', wLoginSec);
+      window.location.href = '/worker';
+    }
+
+    function doWorkerSignup() {
+      const id = document.getElementById('ws-id').value.trim();
+      if (id.length < 3) { document.getElementById('ws-err').textContent='⚠️ ID must be 3+ characters'; return; }
+      localStorage.setItem('workerID', id);
+      localStorage.setItem('sector', wSignupSec);
+      fetch('/api/checkin',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({worker_id:id,industry:wSignupSec,zone:'A',shift_type:'morning',daily_wage_inr:500})
+      }).finally(()=>window.location.href='/worker');
+    }
+
+    // ── Admin sub-tabs ────────────────────────────────────────────────
+    function aTab(t) {
+      document.getElementById('a-login').classList.toggle('hidden',    t!=='login');
+      document.getElementById('a-register').classList.toggle('hidden', t!=='register');
+      document.getElementById('at-login').className    = 'flex-1 py-3 transition-all '+(t==='login'?'tab-a-on':'tab-a-off');
+      document.getElementById('at-register').className = 'flex-1 py-3 transition-all '+(t==='register'?'tab-a-on':'tab-a-off');
+    }
+
+    function arSec(s) {
+      arSector = s;
+      document.getElementById('ar-c').className  = 'py-3 rounded-xl border-2 font-bold text-sm '+(s==='construction'?'border-yellow-500 bg-yellow-900/40 text-yellow-300':'border-gray-700 text-gray-500');
+      document.getElementById('ar-co').className = 'py-3 rounded-xl border-2 font-bold text-sm '+(s==='college'?'border-yellow-500 bg-yellow-900/40 text-yellow-300':'border-gray-700 text-gray-500');
+    }
+
+    function togglePwd(id) { const e=document.getElementById(id); e.type=e.type==='password'?'text':'password'; }
+
+    async function doAdminLogin() {
+      const key = document.getElementById('al-key').value.trim();
+      const email = document.getElementById('al-email').value.trim();
+      document.getElementById('al-err').textContent = '';
+      const btn = document.getElementById('al-btn');
+      btn.textContent='Verifying…'; btn.disabled=true;
+      try {
+        const h = {'Content-Type':'application/json'};
+        if (key) h['X-Admin-Key'] = key;
+        const r = await fetch('/api/dashboard',{headers:h});
+        if (r.status===401) {
+          document.getElementById('a-login').classList.add('shake');
+          setTimeout(()=>document.getElementById('a-login').classList.remove('shake'),500);
+          document.getElementById('al-err').textContent='❌ Wrong Admin Key — check your .env';
+          return;
+        }
+        if (key) localStorage.setItem('adminKey', key);
+        localStorage.setItem('adminEmail', email||'Admin');
+        window.location.href='/admin';
+      } catch { document.getElementById('al-err').textContent='⚠️ Cannot connect to server.'; }
+      finally { btn.textContent='ACCESS DASHBOARD →'; btn.disabled=false; }
+    }
+
+    function doAdminRegister() {
+      const org=document.getElementById('ar-org').value.trim();
+      const email=document.getElementById('ar-email').value.trim();
+      if(!org){document.getElementById('ar-err').textContent='⚠️ Enter organisation name';return;}
+      if(!email){document.getElementById('ar-err').textContent='⚠️ Enter admin email';return;}
+      localStorage.setItem('adminEmail',email);
+      localStorage.setItem('adminOrg',org);
+      window.location.href='/admin';
+    }
+
+    // ── Init ──────────────────────────────────────────────────────────
+    setRole('worker');
+    const sv = localStorage.getItem('workerID');
+    if (sv) document.getElementById('wl-id').value = sv;
+
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      if (role==='worker') {
+        if(!document.getElementById('w-login').classList.contains('hidden')) doWorkerLogin();
+        else doWorkerSignup();
+      } else {
+        if(!document.getElementById('a-login').classList.contains('hidden')) doAdminLogin();
+        else doAdminRegister();
+      }
+    });
+  </script>
+</body>
+</html>

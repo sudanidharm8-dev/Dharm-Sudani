@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FairShift Guardian — Worker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; }
+    .btn-icon { transition: transform 0.1s; }
+    .btn-icon:active { transform: scale(0.95); }
+    .toast { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <!-- ─── SKIP LINK (WCAG 2.4.1) ───────────────────────────────── -->
+  <a href="#main-content"
+     class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-blue-700 text-white px-4 py-2 rounded z-50">
+    Skip to main content
+  </a>
+
+  <!-- ─── HEADER ─────────────────────────────────────────────────── -->
+  <header class="bg-blue-700 text-white px-4 py-4 flex items-center justify-between shadow">
+    <div>
+      <h1 class="text-xl font-bold">🛡️ FairShift Guardian</h1>
+      <p class="text-blue-200 text-sm">Worker Portal</p>
+    </div>
+    <div class="flex gap-2 items-center">
+      <!-- Sector Switcher -->
+      <button onclick="setSector('construction')" id="btn-construction"
+        class="px-3 py-1 rounded-full text-sm font-semibold bg-white text-blue-700 border-2 border-white">
+        🏗️ Site
+      </button>
+      <button onclick="setSector('college')" id="btn-college"
+        class="px-3 py-1 rounded-full text-sm font-semibold bg-blue-700 text-white border-2 border-white">
+        🎓 Campus
+      </button>
+      <button onclick="logout()" aria-label="Logout"
+        class="ml-1 px-2 py-1 rounded-full text-xs font-semibold bg-red-500 text-white border border-red-400">
+        ↩ Out
+      </button>
+    </div>
+  </header>
+
+  <!-- ─── WORKER ID BAR ──────────────────────────────────────────── -->
+  <div class="bg-blue-50 border-b border-blue-200 px-4 py-2 flex gap-2 items-center justify-between">
+    <div class="flex gap-2 items-center">
+      <label class="text-sm font-semibold text-gray-600">Your ID:</label>
+      <input id="workerID" type="text" value="W001" maxlength="10"
+        class="border border-gray-300 rounded px-2 py-1 text-sm uppercase w-24 font-mono"
+        placeholder="W001" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" />
+      <select id="zoneSelect" class="border border-gray-300 rounded px-2 py-1 text-sm">
+        <option value="A">Zone A</option>
+        <option value="B">Zone B</option>
+        <option value="C">Zone C</option>
+        <option value="D">Zone D</option>
+      </select>
+    </div>
+    <span id="sector-label" class="text-xs font-bold text-blue-700 bg-blue-100 px-3 py-1 rounded-full">🏗️ Construction Site</span>
+  </div>
+
+  <!-- ─── MAIN ACTIONS ───────────────────────────────────────────── -->
+  <main id="main-content" role="main" class="px-4 py-5 space-y-4 max-w-md mx-auto">
+
+    <!-- 1. CHECK IN -->
+    <section class="bg-white rounded-2xl shadow p-4">
+      <h2 id="checkin-title" class="text-lg font-bold text-gray-800 mb-1">✅ Shift Check-In</h2>
+      <p id="checkin-desc" class="text-xs text-gray-500 mb-3">Site workers — log your shift start.</p>
+      <div class="flex gap-2 mb-3">
+        <button onclick="setShift('morning')" id="shift-morning"
+          aria-label="Select morning shift"
+          class="flex-1 py-3 rounded-xl text-sm font-bold bg-yellow-100 text-yellow-800 border-2 border-yellow-300 btn-icon">
+          🌅 Morning
+        </button>
+        <button onclick="setShift('afternoon')" id="shift-afternoon"
+          aria-label="Select afternoon shift"
+          class="flex-1 py-3 rounded-xl text-sm font-bold bg-orange-100 text-orange-800 border-2 border-orange-200 btn-icon">
+          ☀️ Afternoon
+        </button>
+        <button onclick="setShift('night')" id="shift-night"
+          aria-label="Select night shift"
+          class="flex-1 py-3 rounded-xl text-sm font-bold bg-indigo-100 text-indigo-800 border-2 border-indigo-200 btn-icon">
+          🌙 Night
+        </button>
+      </div>
+      <input id="wageInput" type="number" value="450" min="1" max="10000"
+        class="border border-gray-300 rounded-lg px-3 py-2 w-full text-sm mb-3"
+        placeholder="Daily wage in ₹" />      <button onclick="checkIn()"
+        aria-label="Check in for your shift now"
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl text-lg btn-icon">
+        CHECK IN NOW
+      </button>
+    </section>
+
+    <!-- 2. NEAR-MISS REPORT -->
+    <section class="bg-white rounded-2xl shadow p-4">
+      <h2 class="text-lg font-bold text-gray-800 mb-1" id="nm-title">⚠️ Near-Miss Report</h2>
+      <p class="text-xs text-gray-500 mb-3" id="nm-subtitle">Something almost happened? Tap the icon — takes 8 seconds.</p>
+      <div class="grid grid-cols-3 gap-2 mb-3" id="nearMissGrid">
+        <!-- Filled dynamically by updateSectorContent() -->
+      </div>
+      <button onclick="submitNearMiss()" id="submitNMBtn" disabled
+        aria-label="Submit near-miss safety report"
+        class="w-full bg-red-500 disabled:bg-gray-300 hover:bg-red-600 text-white font-bold py-3 rounded-xl btn-icon">
+        REPORT NEAR-MISS
+      </button>
+    </section>
+
+    <!-- 3. MOOD PULSE -->
+    <section class="bg-white rounded-2xl shadow p-4">
+      <h2 class="text-lg font-bold text-gray-800 mb-1">😊 End-of-Shift Mood</h2>
+      <p class="text-xs text-gray-500 mb-3">Anonymous — only totals are shown to management.</p>
+      <div class="grid grid-cols-4 gap-2 mb-3">
+        <button onclick="selectMood('great')" data-mood="great"
+          aria-label="My mood is great"
+          class="mood-btn flex flex-col items-center py-3 rounded-xl bg-green-50 border-2 border-green-200 btn-icon">
+          <span class="text-4xl" aria-hidden="true">😊</span><span class="text-xs mt-1 font-semibold text-green-700">Great</span>
+        </button>
+        <button onclick="selectMood('okay')" data-mood="okay"
+          aria-label="My mood is okay"
+          class="mood-btn flex flex-col items-center py-3 rounded-xl bg-blue-50 border-2 border-blue-200 btn-icon">
+          <span class="text-4xl" aria-hidden="true">😐</span><span class="text-xs mt-1 font-semibold text-blue-700">Okay</span>
+        </button>
+        <button onclick="selectMood('tired')" data-mood="tired"
+          aria-label="My mood is tired"
+          class="mood-btn flex flex-col items-center py-3 rounded-xl bg-yellow-50 border-2 border-yellow-200 btn-icon">
+          <span class="text-4xl" aria-hidden="true">😴</span><span class="text-xs mt-1 font-semibold text-yellow-700">Tired</span>
+        </button>
+        <button onclick="selectMood('unhappy')" data-mood="unhappy"
+          aria-label="My mood is unhappy"
+          class="mood-btn flex flex-col items-center py-3 rounded-xl bg-red-50 border-2 border-red-200 btn-icon">
+          <span class="text-4xl" aria-hidden="true">😢</span><span class="text-xs mt-1 font-semibold text-red-700">Unhappy</span>
+        </button>
+      </div>
+      <button onclick="submitMood()" id="submitMoodBtn" disabled
+        aria-label="Submit end-of-shift mood anonymously"
+        class="w-full bg-green-500 disabled:bg-gray-300 hover:bg-green-600 text-white font-bold py-3 rounded-xl btn-icon">
+        SUBMIT MOOD
+      </button>
+    </section>
+
+    <!-- 4. WAGE PROOF -->
+    <section id="wage-section" class="bg-white rounded-2xl shadow p-4">
+      <h2 class="text-lg font-bold text-gray-800 mb-1">🔐 Wage Proof</h2>
+      <p id="wage-desc" class="text-xs text-gray-500 mb-3">Log today's shift. Your wage is sealed with a cryptographic fingerprint — impossible to tamper.</p>
+      <div class="flex gap-2 mb-2">
+        <input id="wageDate" type="date" class="border border-gray-300 rounded-lg px-3 py-2 text-sm flex-1" />
+        <input id="wageHours" type="number" placeholder="Hours" min="1" max="24" value="8"
+          class="border border-gray-300 rounded-lg px-3 py-2 text-sm w-20" />
+      </div>
+      <input id="wagePaid" type="number" placeholder="₹ Wage paid today" min="1" max="50000"
+        class="border border-gray-300 rounded-lg px-3 py-2 w-full text-sm mb-3" />
+      <div class="flex gap-2">
+        <button onclick="logWage()"
+          class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-sm btn-icon">
+          🔐 SEAL WAGE RECORD
+        </button>
+        <button onclick="downloadPDF()"
+          class="flex-1 bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 rounded-xl text-sm btn-icon">
+          📄 GET DISPUTE PDF
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ─── TOAST ──────────────────────────────────────────────────── -->
+  <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-5 py-3 rounded-full text-sm shadow-lg toast"></div>
+
+  <!-- ─── SCRIPTS ────────────────────────────────────────────────── -->
+  <script>
+    // ── Session restore from login ───────────────────────────────────
+    const _savedID     = localStorage.getItem('workerID') || 'W001';
+    const _savedSector = localStorage.getItem('sector')   || 'construction';
+    document.getElementById('workerID').value = _savedID;
+
+    let sector = _savedSector;
+    let selectedShift = 'morning';
+    let selectedNearMiss = null;
+    let selectedMood = null;
+
+    // Logout helper
+    function logout() {
+      localStorage.removeItem('workerID');
+      localStorage.removeItem('sector');
+      window.location.href = '/worker-login';
+    }
+
+    // Set today's date as default
+    document.getElementById('wageDate').value = new Date().toISOString().split('T')[0];
+
+    function setSector(s) {
+      sector = s;
+      localStorage.setItem('sector', s);
+
+      // Site button — orange when active, grey when not
+      document.getElementById('btn-construction').className = s === 'construction'
+        ? 'px-3 py-1 rounded-full text-sm font-semibold bg-orange-400 text-white border-2 border-orange-300 shadow'
+        : 'px-3 py-1 rounded-full text-sm font-semibold bg-blue-800 text-blue-200 border-2 border-blue-600';
+
+      // Campus button — green when active, grey when not
+      document.getElementById('btn-college').className = s === 'college'
+        ? 'px-3 py-1 rounded-full text-sm font-semibold bg-green-400 text-white border-2 border-green-300 shadow'
+        : 'px-3 py-1 rounded-full text-sm font-semibold bg-blue-800 text-blue-200 border-2 border-blue-600';
+
+      // Update label
+      const label = document.getElementById('sector-label');
+      if (label) {
+        label.textContent = s === 'construction' ? '🏗️ Construction Site' : '🎓 College Campus';
+        label.className = s === 'construction'
+          ? 'text-xs font-bold text-orange-700 bg-orange-100 px-3 py-1 rounded-full'
+          : 'text-xs font-bold text-green-700 bg-green-100 px-3 py-1 rounded-full';
+      }
+
+      updateSectorContent(s);
+
+      // Show/hide wage proof section — campus staff don't use it
+      document.getElementById('wage-section').style.display = s === 'construction' ? '' : 'none';
+    }
+
+    // ── Sector-specific content ──────────────────────────────────────
+    const SECTOR_DATA = {
+      construction: {
+        checkinTitle:  '✅ Shift Check-In',
+        checkinDesc:   'Site workers — log your shift start.',
+        wagePlaceholder: 'Daily wage in ₹ (site rate)',
+        wageDesc:      'Your site wage is sealed with a cryptographic fingerprint — impossible to tamper.',
+        nmTitle:       '⚠️ Near-Miss Report',
+        nmDesc:        'Something almost happened on site? Tap the icon — takes 8 seconds.',
+        nmItems: [
+          { type:'slipped',        emoji:'🦶', label:'Slipped',        color:'red'    },
+          { type:'falling_object', emoji:'🪨', label:'Falling Object', color:'orange' },
+          { type:'spark',          emoji:'🔥', label:'Spark / Fire',   color:'yellow' },
+          { type:'chemical_smell', emoji:'💨', label:'Chemical Smell', color:'green'  },
+          { type:'electrical',     emoji:'⚡', label:'Electrical',     color:'purple' },
+          { type:'blocked_exit',   emoji:'🚧', label:'Blocked Exit',   color:'gray'   },
+        ],
+      },
+      college: {
+        checkinTitle:  '✅ Duty Check-In',
+        checkinDesc:   'Campus staff / Teaching assistants — log your duty start.',
+        wagePlaceholder: 'Daily stipend / salary in ₹',
+        wageDesc:      'Your campus salary is sealed cryptographically — proof against underpayment.',
+        nmTitle:       '⚠️ Campus Incident Report',
+        nmDesc:        'Something unsafe happened on campus? Tap the icon — fully anonymous.',
+        nmItems: [
+          { type:'slipped',        emoji:'🚶', label:'Slip / Trip',      color:'red'    },
+          { type:'overcrowding',   emoji:'👥', label:'Overcrowding',     color:'orange' },
+          { type:'spark',          emoji:'🔥', label:'Fire / Smoke',     color:'yellow' },
+          { type:'medical',        emoji:'🆘', label:'Medical Emerg.',   color:'green'  },
+          { type:'electrical',     emoji:'⚡', label:'Electrical',       color:'purple' },
+          { type:'harassment',     emoji:'🚫', label:'Harassment',       color:'pink'   },
+        ],
+      },
+    };
+
+    const COLOR_MAP = {
+      red:    { bg:'bg-red-50',    border:'border-red-200',    text:'text-red-700'    },
+      orange: { bg:'bg-orange-50', border:'border-orange-200', text:'text-orange-700' },
+      yellow: { bg:'bg-yellow-50', border:'border-yellow-200', text:'text-yellow-700' },
+      green:  { bg:'bg-green-50',  border:'border-green-200',  text:'text-green-700'  },
+      purple: { bg:'bg-purple-50', border:'border-purple-200', text:'text-purple-700' },
+      gray:   { bg:'bg-gray-50',   border:'border-gray-200',   text:'text-gray-700'   },
+      pink:   { bg:'bg-pink-50',   border:'border-pink-200',   text:'text-pink-700'   },
+    };
+
+    function updateSectorContent(s) {
+      const d = SECTOR_DATA[s] || SECTOR_DATA.construction;
+
+      // Check-in
+      document.getElementById('checkin-title').textContent = d.checkinTitle;
+      document.getElementById('checkin-desc').textContent  = d.checkinDesc;
+      document.getElementById('wageInput').placeholder     = d.wagePlaceholder;
+      document.getElementById('wage-desc').textContent     = d.wageDesc;
+
+      // Near-miss title/desc
+      document.getElementById('nm-title').textContent    = d.nmTitle;
+      document.getElementById('nm-subtitle').textContent = d.nmDesc;
+
+      // Rebuild near-miss grid
+      selectedNearMiss = null;
+      document.getElementById('submitNMBtn').disabled = true;
+      const grid = document.getElementById('nearMissGrid');
+      grid.innerHTML = d.nmItems.map(item => {
+        const c = COLOR_MAP[item.color] || COLOR_MAP.gray;
+        return `<button onclick="selectNearMiss('${item.type}')" data-type="${item.type}"
+          aria-label="Report ${item.label}"
+          class="nm-btn flex flex-col items-center py-3 rounded-xl ${c.bg} border-2 ${c.border} btn-icon">
+          <span class="text-3xl" aria-hidden="true">${item.emoji}</span>
+          <span class="text-xs mt-1 font-semibold ${c.text}">${item.label}</span>
+        </button>`;
+      }).join('');
+    }
+
+    function setShift(type) {
+      selectedShift = type;
+      ['morning','afternoon','night'].forEach(t => {
+        const btn = document.getElementById(`shift-${t}`);
+        btn.style.opacity = t === type ? '1' : '0.5';
+        btn.style.borderWidth = t === type ? '3px' : '2px';
+      });
+    }
+
+    function selectNearMiss(type) {
+      selectedNearMiss = type;
+      document.querySelectorAll('.nm-btn').forEach(b => {
+        b.style.opacity = b.dataset.type === type ? '1' : '0.4';
+        b.style.transform = b.dataset.type === type ? 'scale(1.05)' : 'scale(1)';
+      });
+      document.getElementById('submitNMBtn').disabled = false;
+    }
+
+    function selectMood(mood) {
+      selectedMood = mood;
+      document.querySelectorAll('.mood-btn').forEach(b => {
+        b.style.opacity = b.dataset.mood === mood ? '1' : '0.4';
+        b.style.transform = b.dataset.mood === mood ? 'scale(1.05)' : 'scale(1)';
+      });
+      document.getElementById('submitMoodBtn').disabled = false;
+    }
+
+    function showToast(msg, color = 'bg-gray-900') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `fixed bottom-6 left-1/2 -translate-x-1/2 ${color} text-white px-5 py-3 rounded-full text-sm shadow-lg toast`;
+      t.style.display = 'block';
+      setTimeout(() => { t.style.display = 'none'; }, 5000);
+    }
+
+    async function post(url, body) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      return res.json();
+    }
+
+    async function checkIn() {
+      const id = document.getElementById('workerID').value.trim();
+      const zone = document.getElementById('zoneSelect').value;
+      const wage = parseFloat(document.getElementById('wageInput').value);
+      if (!id) { showToast('Please enter your Worker ID', 'bg-red-600'); return; }
+      try {
+        const data = await post('/api/checkin', {
+          worker_id: id, industry: sector, zone, shift_type: selectedShift, daily_wage_inr: wage
+        });
+        showToast(data.message || 'Checked in!', 'bg-green-700');
+      } catch { showToast('Could not connect. Try again.', 'bg-red-600'); }
+    }
+
+    async function submitNearMiss() {
+      const zone = document.getElementById('zoneSelect').value;
+      try {
+        const data = await post('/api/near-miss', {
+          icon_type: selectedNearMiss, zone, industry: sector
+        });
+        showToast(`${data.message} | ${data.ai_classification.split('\n')[0]}`, 'bg-orange-700');
+        selectedNearMiss = null;
+        document.querySelectorAll('.nm-btn').forEach(b => { b.style.opacity='1'; b.style.transform='scale(1)'; });
+        document.getElementById('submitNMBtn').disabled = true;
+      } catch { showToast('Could not submit. Try again.', 'bg-red-600'); }
+    }
+
+    async function submitMood() {
+      const zone = document.getElementById('zoneSelect').value;
+      try {
+        const data = await post('/api/mood', { mood: selectedMood, industry: sector, zone });
+        showToast(data.message, 'bg-green-700');
+        selectedMood = null;
+        document.querySelectorAll('.mood-btn').forEach(b => { b.style.opacity='1'; b.style.transform='scale(1)'; });
+        document.getElementById('submitMoodBtn').disabled = true;
+      } catch { showToast('Could not submit. Try again.', 'bg-red-600'); }
+    }
+
+    async function logWage() {
+      const id = document.getElementById('workerID').value.trim();
+      const date = document.getElementById('wageDate').value;
+      const hours = parseFloat(document.getElementById('wageHours').value);
+      const wage = parseFloat(document.getElementById('wagePaid').value);
+      if (!id || !date || !hours || !wage) { showToast('Fill all wage fields', 'bg-red-600'); return; }
+      try {
+        const data = await post('/api/wage-record', {
+          worker_id: id, date, hours_worked: hours, wage_paid_inr: wage, industry: sector
+        });
+        showToast(`🔐 Sealed! Hash: ${data.hash_fingerprint.substring(0,12)}...`, 'bg-indigo-700');
+      } catch { showToast('Could not seal record.', 'bg-red-600'); }
+    }
+
+    function downloadPDF() {
+      const id = document.getElementById('workerID').value.trim();
+      if (!id) { showToast('Enter your Worker ID first', 'bg-red-600'); return; }
+      window.open(`/api/wage-dispute-pdf/${id}`, '_blank');
+    }
+
+    // Default shift selection
+    setShift('morning');
+    setSector(_savedSector);
+  </script>
+</body>
+</html>

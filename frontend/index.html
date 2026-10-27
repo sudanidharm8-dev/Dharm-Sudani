@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FairShift Guardian — Home</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; }
+    .card-hover { transition: transform 0.15s, box-shadow 0.15s; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.15); }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+    .fade-up { animation: fadeUp 0.6s ease both; }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-950 via-blue-800 to-indigo-900 flex flex-col">
+
+  <!-- Skip link -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-white text-blue-900 px-4 py-2 rounded z-50">Skip to main content</a>
+
+  <!-- Header -->
+  <header class="px-6 py-5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="text-4xl" aria-hidden="true">🛡️</span>
+      <div>
+        <h1 class="text-white text-xl font-black tracking-tight">FairShift Guardian</h1>
+        <p class="text-blue-300 text-xs">Powered by Gemini AI · SDG 8</p>
+      </div>
+    </div>
+    <span class="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse">LIVE</span>
+  </header>
+
+  <!-- Hero -->
+  <main id="main-content" role="main" class="flex-1 flex flex-col items-center justify-center px-4 pb-10">
+    <div class="text-center mb-10 fade-up">
+      <h2 class="text-white text-4xl md:text-5xl font-black leading-tight mb-4">
+        Fair Pay.<br>Safe Work.<br><span class="text-yellow-400">Every Shift.</span>
+      </h2>
+      <p class="text-blue-200 text-lg max-w-md mx-auto">
+        Protecting construction workers & college staff with cryptographic wage proof, AI safety alerts, and anonymous mood tracking.
+      </p>
+    </div>
+
+    <!-- Role cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl fade-up" style="animation-delay:0.2s">
+
+      <!-- Worker Card -->
+      <a href="/worker-login" class="card-hover bg-white rounded-3xl p-8 text-center block no-underline" aria-label="Enter as a Worker or Student">
+        <div class="text-6xl mb-4" aria-hidden="true">👷</div>
+        <h3 class="text-gray-900 text-2xl font-black mb-2">I'm a Worker</h3>
+        <p class="text-gray-500 text-sm mb-5">Construction site workers & college campus staff</p>
+        <div class="space-y-2 text-left text-sm text-gray-600 mb-6">
+          <div class="flex items-center gap-2"><span aria-hidden="true">✅</span> Clock in / Clock out</div>
+          <div class="flex items-center gap-2"><span aria-hidden="true">⚠️</span> Report safety near-misses</div>
+          <div class="flex items-center gap-2"><span aria-hidden="true">😊</span> Submit mood (anonymous)</div>
+          <div class="flex items-center gap-2"><span aria-hidden="true">🔐</span> Seal & verify your wage</div>
+          <div class="flex items-center gap-2"><span aria-hidden="true">📄</span> Download dispute PDF</div>
+        </div>
+        <div class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-lg">
+          Enter as Worker →
+        </div>
+      </a>
+
+      <!-- Admin Card -->
+      <a href="/admin-login" class="card-hover bg-gray-900 rounded-3xl p-8 text-center block no-underline" aria-label="Enter as an Admin or Employer">
+        <div class="text-6xl mb-4" aria-hidden="true">🛡️</div>
+        <h3 class="text-white text-2xl font-black mb-2">I'm an Admin</h3>
+        <p class="text-gray-400 text-sm mb-5">Employers, site managers & HR administrators</p>
+        <div class="space-y-2 text-left text-sm text-gray-400 mb-6">
+          <div class="flex items-center gap-2"><span aria-hidden="true">📊</span> Live workforce dashboard</div>
+          <div class="flex items-center gap-2"><span aria-hidden="true">⭐</span> Fairness Score per site</div>
+          <div class="flex items-center gap-2"><span aria-hidden="true">🚨</span> Open hazard alerts</div>
+          <div class="flex items-center gap-2"><span aria-hidden="true">🤖</span> AI workforce chatbot</div>
+          <div class="flex items-center gap-2"><span aria-hidden="true">🔍</span> Verify wage records</div>
+        </div>
+        <div class="w-full bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold py-3 rounded-xl text-lg">
+          Enter as Admin →
+        </div>
+      </a>
+    </div>
+
+    <!-- SDG badge -->
+    <div class="mt-10 fade-up text-center" style="animation-delay:0.4s">
+      <p class="text-blue-300 text-sm">🌍 Aligned with <strong class="text-white">UN SDG 8</strong> — Decent Work &amp; Economic Growth</p>
+    </div>
+  </main>
+</body>
+</html>
